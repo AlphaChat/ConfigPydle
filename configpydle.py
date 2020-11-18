@@ -197,6 +197,14 @@ class Client(pydle.Client):
 
 
 
+	async def on_disconnect(self, expected):
+
+		await super().on_disconnect(expected)
+
+		self.autoperform_done = False
+
+
+
 	async def message(self, target, message):
 
 		if not self.connected:

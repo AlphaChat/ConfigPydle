@@ -149,6 +149,16 @@ class Client(pydle.Client):
 
 
 
+	def run(self):
+
+		try:
+			self.eventloop.run_until_complete(self.connect())
+			self.eventloop.run_forever()
+		finally:
+			self.eventloop.stop()
+
+
+
 	async def connect(self):
 
 		# This is because super().connect() doesn't silently ignore keys it doesn't use...

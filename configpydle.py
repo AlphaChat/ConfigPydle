@@ -130,7 +130,7 @@ class Client(pydle.Client):
 			if key not in self.phcfg:
 				raise KeyError(f'Required key {key} in config file is missing')
 
-		for var in [ 'connect_timeout', 'port' ]:
+		for var in _var_int_max.keys():
 			if not isinstance(self.phcfg[var], int):
 				raise ValueError(f'The {var} variable must be an integer')
 			if self.phcfg[var] < 1:

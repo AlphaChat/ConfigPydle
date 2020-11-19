@@ -92,8 +92,6 @@ class Client(pydle.Client):
 
 		if path is None:
 			raise ValueError('The path to the configuration file must be given')
-		if eventloop is None:
-			raise ValueError('The event loop argument must be given')
 
 		for key in _default_config_keys:
 			if key not in default_config_keys:
@@ -140,9 +138,6 @@ class Client(pydle.Client):
 			if self.phcfg[var] > _var_int_max[var]:
 				raise ValueError(f'The {var} variable must be less than or equal to ' \
 				                 f'{_var_int_max[var]}')
-
-		# To avoid the below blowing up due to duplicated argument
-		self.phcfg.pop('eventloop', None)
 
 		# This is because super().__init__() doesn't silently ignore keys it doesn't use...
 		_kwargs = {}

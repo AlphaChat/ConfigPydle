@@ -45,7 +45,6 @@ _connect_whitelist = [
 	'hostname',
 	'password',
 	'port',
-	'reconnect',
 	'tls',
 ]
 
@@ -64,7 +63,6 @@ _ctor_whitelist = [
 
 _default_config_keys = {
 	'connect_timeout':  '10',
-	'reconnect':        'False',
 	'port':             '6697',
 	'sasl_mechanism':   'EXTERNAL',
 	'tls':              'True',

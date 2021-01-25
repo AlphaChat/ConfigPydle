@@ -159,7 +159,7 @@ class Client(pydle.Client):
 
 
 
-	async def connect(self):
+	async def connect(self, reconnect=False):
 
 		# This is because super().connect() doesn't silently ignore keys it doesn't use...
 		_kwargs = {}
@@ -168,7 +168,7 @@ class Client(pydle.Client):
 				_kwargs[key] = self.phcfg[key]
 
 		_rem = 20 * self.phcfg['connect_timeout']
-		await super().connect(**_kwargs)
+		await super().connect(reconnect=reconnect, **_kwargs)
 		while _rem and not self.connected:
 			await asyncio.sleep(0.05)
 			_rem -= 1

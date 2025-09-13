@@ -24,23 +24,13 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
-import configparser
 import textwrap
+import yaml
 
 from datetime import datetime, timezone
 from pydle import Client as PydleClient
 
 
-
-_boolean_false_values = [
-	'false',
-	'no',
-]
-
-_boolean_true_values = [
-	'true',
-	'yes',
-]
 
 _connect_whitelist = [
 	'hostname',
@@ -67,7 +57,6 @@ _default_config_keys = {
 	'port':             '6697',
 	'sasl_mechanism':   'EXTERNAL',
 	'tls':              'True',
-	'tls_verify':       'True',
 }
 
 _required_config_keys = [
@@ -77,16 +66,16 @@ _required_config_keys = [
 	'username',
 ]
 
-_var_int_max = {
-	'connect_timeout':  30,
-	'port':             65535,
+_integer_minmax = {
+	'connect_timeout':  [ 1, 30 ],
+	'port':             [ 1, 65535 ],
 }
 
 
 
 class ConfigPydleClient(PydleClient):
 
-	def __init__(self, path=None, default_config_keys={}, required_config_keys=[]):
+	def __init__(self, path, default_config_keys={}, required_config_keys=[]):
 
 		self.autoperform_done = False
 		self.acchannels = set()
@@ -95,54 +84,40 @@ class ConfigPydleClient(PydleClient):
 		self.text_wrapper = textwrap.TextWrapper(width=64, expand_tabs=False, tabsize=1,
 		                                         replace_whitespace=True, drop_whitespace=True)
 
-		if path is None:
-			raise ValueError('The path to the configuration file must be given')
+		with open(path) as file:
+			self.acconfig = yaml.safe_load(file.read())
+
+		for key in self.acconfig:
+			if key == 'none':
+				self.acconfig[key] = None
+
+		for key in default_config_keys:
+			if key not in self.acconfig:
+				self.acconfig[key] = default_config_keys[key]
 
 		for key in _default_config_keys:
-			if key not in default_config_keys:
-				default_config_keys[key] = _default_config_keys[key]
-
-		for key in _required_config_keys:
-			if key not in required_config_keys:
-				required_config_keys.append(key)
-
-		with open(path) as f:
-			_parser = configparser.ConfigParser(defaults=default_config_keys, default_section='config',
-			                                    interpolation=configparser.ExtendedInterpolation())
-			_parser.read_file(f)
-			for key in _parser['config']:
-				self.acconfig[key] = _parser['config'][key]
-
-				# Integers
-				try:
-					if not isinstance(self.acconfig[key], bool):
-						val = int(self.acconfig[key])
-						self.acconfig[key] = val
-				except (TypeError, ValueError):
-					pass
-
-				# Booleans
-				if str(self.acconfig[key]).lower() in _boolean_false_values:
-					self.acconfig[key] = False
-				if str(self.acconfig[key]).lower() in _boolean_true_values:
-					self.acconfig[key] = True
-
-				# None
-				if str(self.acconfig[key]).lower() == 'none':
-					self.acconfig[key] = None
+			if key not in self.acconfig:
+				self.acconfig[key] = _default_config_keys[key]
 
 		for key in required_config_keys:
 			if key not in self.acconfig:
 				raise KeyError(f'Required key {key} in config file is missing')
 
-		for var in _var_int_max.keys():
-			if not isinstance(self.acconfig[var], int):
-				raise ValueError(f'The {var} variable must be an integer')
-			if self.acconfig[var] < 1:
-				raise ValueError(f'The {var} variable must be greater than or equal to 1')
-			if self.acconfig[var] > _var_int_max[var]:
-				raise ValueError(f'The {var} variable must be less than or equal to ' \
-				                 f'{_var_int_max[var]}')
+		for key in _required_config_keys:
+			if key not in self.acconfig:
+				raise KeyError(f'Required key {key} in config file is missing')
+
+		for key in _integer_minmax:
+			try:
+				var = int(self.acconfig[key])
+				self.acconfig[key] = var
+				vmin = _integer_minmax[key][0]
+				vmax = _integer_minmax[key][1]
+				if var < vmin or var > vmax:
+					raise ValueError('Integer variable out of range')
+			except:
+					raise ValueError(f'The {var} variable must be an integer with a ' \
+					                 f'value between {vmin} and {vmax} (inclusive)')
 
 		# This is because super().__init__() doesn't silently ignore keys it doesn't use...
 		_kwargs = {}

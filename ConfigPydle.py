@@ -116,7 +116,7 @@ class ConfigPydleClient(PydleClient):
 				if var < vmin or var > vmax:
 					raise ValueError('Integer variable out of range')
 			except:
-					raise ValueError(f'The {var} variable must be an integer with a ' \
+					raise ValueError(f'The {key} variable must be an integer with a ' \
 					                 f'value between {vmin} and {vmax} (inclusive)')
 
 		# This is because super().__init__() doesn't silently ignore keys it doesn't use...

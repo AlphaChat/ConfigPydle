@@ -32,50 +32,41 @@ from pydle import Client as PydleClient
 
 
 
-_connect_whitelist = [
-	'hostname',
-	'password',
-	'port',
-	'tls',
-]
-
-_ctor_whitelist = [
-	'nickname',
-	'realname',
-	'sasl_identity',
-	'sasl_mechanism',
-	'sasl_password',
-	'sasl_username',
-	'tls_client_cert',
-	'tls_client_cert_key',
-	'tls_client_cert_password',
-	'username',
-]
-
-_default_config_keys = {
-	'connect_timeout':  '10',
-	'port':             '6697',
-	'sasl_mechanism':   'EXTERNAL',
-	'tls':              'True',
-}
-
-_required_config_keys = [
-	'hostname',
-	'nickname',
-	'realname',
-	'username',
-]
-
-_integer_minmax = {
-	'connect_timeout':  [ 1, 30 ],
-	'port':             [ 1, 65535 ],
-}
-
-
-
 class ConfigPydleClient(PydleClient):
 
 	def __init__(self, path, default_config_keys={}, required_config_keys=[]):
+
+		_ctor_whitelist = [
+			'nickname',
+			'realname',
+			'sasl_identity',
+			'sasl_mechanism',
+			'sasl_password',
+			'sasl_username',
+			'tls_client_cert',
+			'tls_client_cert_key',
+			'tls_client_cert_password',
+			'username',
+		]
+
+		_integer_minmax = {
+			'connect_timeout':  [     5,    30, False ],
+			'port':             [     1, 65535, False ],
+		}
+
+		_default_config_keys = {
+			'connect_timeout':  10,
+			'port':             6697,
+			'sasl_mechanism':   'EXTERNAL',
+			'tls':              'True',
+		}
+
+		_required_config_keys = [
+			'hostname',
+			'nickname',
+			'realname',
+			'username',
+		]
 
 		self.autoperform_done = False
 		self.acchannels = set()
@@ -138,6 +129,13 @@ class ConfigPydleClient(PydleClient):
 
 
 	async def connect(self, reconnect=False):
+
+		_connect_whitelist = [
+			'hostname',
+			'password',
+			'port',
+			'tls',
+		]
 
 		# This is because super().connect() doesn't silently ignore keys it doesn't use...
 		_kwargs = {}

@@ -184,6 +184,7 @@ class ConfigPydleClient(PydleClient):
 		self.autoperform_done = True
 
 		await self.add_ev_task(self.check_membership())
+		await self.on_autoperform_done()
 
 
 
@@ -271,6 +272,9 @@ class ConfigPydleClient(PydleClient):
 
 	async def on_ctcp_time(self, source, target, contents):
 		await self.ctcp_reply(source, 'TIME', datetime.now(tz=timezone.utc).isoformat(timespec='seconds'))
+
+	async def on_autoperform_done(self):
+		pass
 
 	async def on_raw_276(self, message):
 		pass

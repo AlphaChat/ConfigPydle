@@ -158,31 +158,32 @@ class ConfigPydleClient(PydleClient):
 
 		await super().on_raw_001(message)
 
-		if self.nickname != self.acconfig['nickname']:
-			nickname = self.acconfig['nickname']
-			await self.raw(f'PRIVMSG NickServ :RELEASE {nickname}\r\n')
-			await self.raw(f'PRIVMSG NickServ :REGAIN {nickname}\r\n')
+		want_nickname = self.acconfig['nickname']
+		oper_username = self.acconfig.get('oper_username', None)
+		oper_password = self.acconfig.get('oper_password', None)
+		connect_modes = self.acconfig.get('connect_modes', None)
+		away_message  = self.acconfig.get('away_message', None)
+
+		if self.nickname != want_nickname:
 			_rem = 10
-			while _rem and self.nickname != nickname:
+			while _rem and self.nickname != want_nickname:
+				await super().message('NickServ', f'RELEASE {want_nickname}')
+				await super().message('NickServ', f'REGAIN {want_nickname}')
 				await asyncio.sleep(1)
 				_rem -= 1
 
-		if 'oper_username' in self.acconfig and 'oper_password' in self.acconfig:
-			oper_username = self.acconfig['oper_username']
-			oper_password = self.acconfig['oper_password']
+		if oper_username and oper_password:
 			await self.raw(f'OPER {oper_username} {oper_password}\r\n')
 
-		if 'connect_modes' in self.acconfig:
-			connect_modes = self.acconfig['connect_modes']
+		if connect_modes:
 			await self.raw(f'MODE {self.nickname} {connect_modes}\r\n')
 
-		if 'away_message' in self.acconfig:
-			away_message = self.acconfig['away_message']
+		if away_message:
 			await self.away(away_message)
 
-		await self.add_ev_task(self.check_membership())
-
 		self.autoperform_done = True
+
+		await self.add_ev_task(self.check_membership())
 
 
 

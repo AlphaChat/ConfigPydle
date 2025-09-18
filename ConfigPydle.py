@@ -211,18 +211,24 @@ class ConfigPydleClient(PydleClient):
 
 	async def check_membership(self):
 
-		while await asyncio.sleep(1, result=True):
+		try:
+			while await asyncio.sleep(1, result=True):
 
-			if not (self.connected and self.autoperform_done):
-				continue
+				if not (self.connected and self.autoperform_done):
+					continue
 
-			for channel in self.acchannels:
-				if not self.in_channel(channel):
-					try:
-						await self.join(channel)
-					except:
-						pass
-					await asyncio.sleep(1)
+				for channel in self.acchannels:
+					if not self.in_channel(channel):
+						try:
+							await self.join(channel)
+							await asyncio.sleep(1)
+						except asyncio.CancelledError:
+							return
+						except:
+							pass
+
+		except asyncio.CancelledError:
+			return
 
 
 

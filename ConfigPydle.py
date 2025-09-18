@@ -285,6 +285,9 @@ class ConfigPydleClient(PydleClient):
 	async def on_raw_381(self, message):
 		pass
 
+	async def on_raw_382(self, message):
+		pass
+
 	async def on_raw_458(self, message):
 		pass
 
@@ -292,4 +295,7 @@ class ConfigPydleClient(PydleClient):
 		pass
 
 	async def on_raw_473(self, message):
+		pass
+
+	async def on_raw_723(self, message):
 		pass

@@ -102,8 +102,11 @@ class ConfigPydleClient(PydleClient):
 			try:
 				vmin = _integer_minmax[key][0]
 				vmax = _integer_minmax[key][1]
+				allz = _integer_minmax[key][2]
 				var = int(self.acconfig[key])
 				self.acconfig[key] = var
+				if var == 0 and allz:
+					continue
 				if var < vmin or var > vmax:
 					raise ValueError('Integer variable out of range')
 			except:

@@ -79,7 +79,7 @@ class ConfigPydleClient(PydleClient):
 			self.acconfig = yaml.safe_load(file.read())
 
 		for key in self.acconfig:
-			if key == 'none':
+			if self.acconfig[key] == 'None':
 				self.acconfig[key] = None
 
 		for key in default_config_keys:
